@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1024">
+  <title>NyuuuCode|MyPortfolio</title>
+  <link rel="stylesheet" href="style.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <style>
+    /* CSS untuk animasi scroll */
+    .scroll-animation {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+
+    .scroll-animation.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Spotify Style Audio Ball - Diperbaiki */
+    #audioBall {
+      position: fixed;
+      width: 120px;
+      height: 120px;
+      background-color: #1DB954;
+      border-radius: 50%;
+      bottom: 35px;
+      right: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s;
+      z-index: 1000;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path fill="white" d="M248 8C111.1 8 0 119.1 0 256s111.1 248 248 248 248-111.1 248-248S384.9 8 248 8zm100.7 364.9c-4.2 0-6.8-1.3-10.7-3.6-62.4-37.6-135-39.2-206.7-24.5-3.9 1-9 2.6-11.9 2.6-9.7 0-15.8-7.7-15.8-15.8 0-10.3 6.1-15.2 13.6-16.8 81.9-18.1 165.6-16.5 237 26.2 6.1 3.9 9.7 7.4 9.7 16.5s-7.1 15.4-15.2 15.4zm26.9-65.6c-5.2 0-8.7-2.3-12.3-4.2-62.5-37-155.7-51.9-238.6-29.4-4.8 1.3-7.4 2.6-11.9 2.6-10.7 0-19.4-8.7-19.4-19.4s5.2-17.8 15.5-20.7c27.8-7.8 56.2-13.6 97.8-13.6 64.9 0 127.6 16.1 177 45.5 8.1 4.8 11.3 11 11.3 19.7-.1 10.8-8.5 19.5-19.4 19.5zm31-76.2c-5.2 0-8.4-1.3-12.9-3.9-71.2-42.5-198.5-52.7-280.9-29.7-3.6 1-8.1 2.6-12.9 2.6-13.2 0-23.3-10.3-23.3-23.6 0-13.6 8.4-21.3 17.4-23.9 35.2-10.3 74.6-15.2 117.5-15.2 73 0 149.5 15.2 205.4 47.8 7.8 4.5 12.9 10.7 12.9 22.6 0 13.6-11 23.3-23.2 23.3z"/></svg>');
+      background-size: 50%;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    
+    #audioBall:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+    
+    #audioBall.active {
+      transform: scale(0.95);
+      background-color: #1ED760;
+    }
+    
+    /* Playlist yang Diperbaiki */
+    #playlist {
+      position: fixed;
+      bottom: 110px;
+      right: 30px;
+      width: 450px; /* Lebar diperbesar */
+      background: #282828;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      padding: 15px;
+      display: none;
+      z-index: 999;
+      max-height: 400px; /* Tinggi maksimum */
+      overflow-y: auto;
+      color: white;
+      font-size: 14px;
+    }
+    
+    #playlist h3 {
+      margin: 0 0 15px 0;
+      color: white;
+      text-align: center;
+      font-size: 18px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #444;
+    }
+    
+    .song {
+      padding: 12px 15px;
+      border-radius: 6px;
+      margin: 8px 0;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #383838;
+      display: flex;
+      align-items: center;
+    }
+    
+    .song:hover {
+      background: #484848;
+    }
+    
+    .song.active {
+      background: #535353;
+      color: #1DB954;
+    }
+    
+    .song-info {
+      flex: 1;
+      min-width: 0; /* Memastikan text overflow bekerja */
+    }
+    
+    .song-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .song-artist {
+      font-size: 12px;
+      color: #b3b3b3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .song-number {
+      margin-right: 15px;
+      color: #b3b3b3;
+      font-size: 14px;
+      width: 20px;
+      text-align: center;
+    }
+    
+    /* Scrollbar untuk playlist */
+    #playlist::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    #playlist::-webkit-scrollbar-track {
+      background: #383838;
+      border-radius: 3px;
+    }
+    
+    #playlist::-webkit-scrollbar-thumb {
+      background: #535353;
+      border-radius: 3px;
+    }
+    
+    #playlist::-webkit-scrollbar-thumb:hover {
+      background: #666;
+    }
+  </style>
+</head>
+<body>
+<header class="header">
+ <a href="#home" class="logo"> Banyuuu <span>Andira</span>
+ </a>
+        <!--menu icon-->
+<i class="bx bx-menu" id="menu-icon"></i>
+        <!--Navbar Section-->
+<nav class="navbar">
+  <a href="#home" class="active">Home</a>
+  <a href="#about">About</a>
+  <a href="#services">Services</a>
+  <a href="#projects">Projects</a>
+  <a href="#contact">Contact</a>
+</nav>
+</header>
+
+       <!--Audio Section-->
+<audio id="audioPlayer" autoplay loop>
+    <source src="Nina1.aac" type="audio/mpeg">
+</audio>
+
+<!-- Spotify Style Audio Ball -->
+<div id="audioBall"></div>
+<div id="playlist">
+  <h3>Daftar Putar</h3>
+  <div class="song active" data-src="Nina1.aac">
+    <div class="song-number">1</div>
+    <div class="song-info">
+      <div class="song-title">Lagu Nina</div>
+      <div class="song-artist">Banyuuu</div>
+    </div>
+  </div>
+  <div class="song" data-src="Mangu.mp3">
+    <div class="song-number">2</div>
+    <div class="song-info">
+      <div class="song-title">Mangu</div>
+      <div class="song-artist">Fourtwanty</div>
+    </div>
+  </div>
+  <div class="song" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3">
+    <div class="song-number">3</div>
+    <div class="song-info">
+      <div class="song-title">Lagu Energik</div>
+      <div class="song-artist">SoundHelix</div>
+    </div>
+  </div>
+  <div class="song" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3">
+    <div class="song-number">4</div>
+    <div class="song-info">
+      <div class="song-title">Lagu Inspiratif</div>
+      <div class="song-artist">SoundHelix</div>
+    </div>
+  </div>
+  <div class="song" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3">
+    <div class="song-number">5</div>
+    <div class="song-info">
+      <div class="song-title">Lagu Relaksasi</div>
+      <div class="song-artist">SoundHelix</div>
+    </div>
+  </div>
+</div>
+
+       <!--Home Section-->
+<section class="home" id="home">
+<div id="particles-js"></div>
+    <div class="home-content scroll-animation">
+      <h1>Hi,It's<span>Banyuuuu</span></h1>
+      <h3 class="text-animation">I'm a <span></span>
+      </h3>
+      <p><!--Teks Ini Kosong--></p>
+       <!--Sosmed Section-->
+      <div class="sosial-icons">
+      <a href="https://banyuuusenpai.github.io/Website-My-Profile/">
+        <i class="bx bxl-github"></i>
+      </a>
+      <a href="https://www.facebook.com/profile.php?id=61560056966191&locale=id_ID">
+        <i class="bx bxl-facebook"></i>
+      </a>
+      <a href="https://www.instagram.com/byzh4r/">
+        <i class="bx bxl-instagram-alt"></i>
+      </a>
+      <a href="https://wa.me/6283842487115">
+        <i class="bx bxl-whatsapp"></i>
+      </a>
+      </div>
+       <!--Button Me-->
+      <div class="btn-group">
+        <a href="#" class="btn">Hire</a>
+        <a href="#contact" class="btn">Contact</a>
+      </div>
+   </div>
+       <!--Image Profile-->
+      <div class="home-img">
+        <img src="Profile.jpg" alt="">
+      </div>
+</section>
+       <!--About Section-->
+<Section class="about" id="about">
+     <div class="about-img">
+       <img src="MyProfile.jpg" alt="">
+     </div>
+       <!--About Content-->
+     <div class="about-content scroll-animation">
+     <h2 class="heading">About <span>Me</span></h2>
+     <h3 class="text-animation">
+     <span><!--kosong--></span>
+     </h3>
+     <p>"Saya percaya bahwa setiap langkah kecil yang kita ambil adalah bagian dari perjalanan besar menuju impian kita. Dalam hidup ini, saya telah belajar bahwa proses adalah hal terbaik. Setiap tantangan yang saya hadapi, setiap kegagalan yang saya alami, semuanya membentuk saya menjadi pribadi yang lebih kuat dan lebih bijaksana."</p>
+     <a href="#" class="btn">Read More</a>
+     </div>
+</section>
+
+       <!--Services Section-->
+<section class="services" id="services">
+  <h2 class="heading">Services <span>Me</span></h2>
+       <!--Services Pertama-->
+  <div class="services-container">
+    <div class="service-box scroll-animation">
+      <div class="service-info">
+        <i class="bx bxl-figma"></i>
+        <h4>Program Passionattte</h4>
+        <p>Saya senang membangun aplikasi, mengeksplorasi framework baru, dan menyelesaikan tantangan logika. Dari membuat UI yang interaktif hingga menyusun backend yang efisien,saya akan terus belajar dan berkembang didunia perkodean</p>
+      </div>
+    </div>
+        <!--Services Kedua-->
+    <div class="service-box scroll-animation">
+      <div class="service-info">
+        <i class="bx bx-code"></i>
+        <h4>Frontend Development</h4>
+        <p>Frontend Development is the process of building the visual and interactive parts of a website using HTML, CSS, and JavaScript. It focuses on creating websites that look good, work well, and provide a smooth user experience across different devices.</p>
+      </div>
+    </div>
+        <!--Services Ketiga-->
+    <div class="service-box scroll-animation">
+      <div class="service-info">
+        <i class="bx bx-code-curly"></i>
+        <h4>Backend Development</h4>
+        <p>Backend Development is the part of web development that focuses on how a website works behind the scenes. It involves building and managing the server, database, and application logic using languages like Python, PHP, Node.js, Java.</p>
+      </div>
+    </div>
+  </div>
+</section>
+        <!--Projects Section-->
+<section class="projects" id="projects">
+  <h2 class="heading">Projects <span>Me</span></h2>
+  
+  <div class="projects-box">
+    <div class="project-card scroll-animation">
+      <img src="Projects1.jpg" alt="">
+      
+      <h3>Projects 1</h3>
+      
+      <p>Ini adalah project pertama saya memasuki jurusan RPL saya membuat Blogger yang di ajarakan oleh Pak Walid disini saya bisa membuat informasi seperti berita </p>
+    <a href="https://nyuztobat.blogspot.com/?m=1" class="button">Read More</a>
+    </div>
+    
+    <div class="project-card scroll-animation">
+      <img src="Projects2.jpg" alt="">
+      
+      <h3>Projects 2</h3>
+      
+      <p>Ini website pertama saya yang di publikasikan yang berisi Portofolio yang dirancang untuk menampilkan karya, pengalaman, dan keahlian yang saya miliki</p>
+      <a href="#" class="button">Read More</a>
+    </div>
+    
+    <div class="project-card scroll-animation">
+      <img src="Projects3.jpg" alt="">
+      
+      <h3>Projects 3</h3>
+      
+      <p>Saya membuat website ini bertujuan untuk belajar bahasa jepang secara otodidak dan mempublikasikan untuk yang berniat juga untuk belajar bahasa jepang</p>
+    <a href="https://linkbio.co/NihonggoNyuzz?utm_source=instabio&utm_medium=biolink" class="button">Klik Here</a>
+    </div>
+    
+     <div class="project-card scroll-animation">
+      <img src="Projects4.jpg" alt="">
+      
+      <h3>Projects 4</h3>
+      
+      <p>[COOMING SOON]</p>
+      <p>Ini adalah Website Top-Up yang akan hadir mendatang karena otak saya belum sampai sana hahaha</p>
+      <a href="#" class="button">Read More</a>
+    </div>
+    
+    
+     <div class="project-card scroll-animation">
+      <img src="Projects5.jpg" alt="">
+      
+      <h3>Projects 5</h3>
+      
+      <p>[COOMING SOON]</p>
+      <p>Ini adalah Website Top-Up yang akan hadir mendatang karena otak saya belum sampai sana hahaha</p>
+      <a href="#" class="button">Read More</a>
+    </div>
+    
+         <div class="project-card scroll-animation">
+      <img src="Projects6.jpg" alt="">
+      
+      <h3>Projects 6</h3>
+      
+      <p>[COOMING SOON]</p>
+      <p>Ini adalah Website Top-Up yang akan hadir mendatang karena otak saya belum sampai sana hahaha</p>
+      <a href="#" class="button">Read More</a>
+    </div>
+  </div>
+</section>
+        <!--Contact Section-->
+<section class="contact scroll-animation" id="contact">
+  <h2 class="heading">Contact <span>Me</span></h2>
+  <form action="#">
+    <div class="input-group">
+    <div class="input-box">
+      <input type="text" placeholder="Full Name">
+      <input type="email" placeholder="Email">
+    </div>
+    <div class=input-box>
+      <input type="number" placeholder="Phone Number">
+      <input type="text" placeholder="Subject">
+    </div>
+    
+    <div class="input-group-2">
+      <textarea name="" cols="30" rows="10" placeholder="Your Message"></textarea>
+      <input type="submit" value="Send Message" class="btn">
+     </div>
+  </form>
+</section>
+        <!--Sosial Account-->
+<footer class="footer">
+  <div class="social">
+      <a href="#">
+        <i class="bx bxl-github"></i>
+      </a>
+      <a href="https://www.facebook.com/profile.php?id=61560056966191&locale=id_ID">
+        <i class="bx bxl-facebook"></i>
+      </a>
+      <a href="https://www.instagram.com/byzh4r/">
+        <i class="bx bxl-instagram-alt"></i>
+      </a>
+      <a href="#">
+        <i class="bx bxl-whatsapp"></i>
+      </a>
+  </div>
+      
+      <ul class="list">
+        <l1>
+          <a href="#">FAQ</a>
+        </l1>
+        <l1>
+          <a href="#services">Services</a>
+        </l1>
+        <l1>
+          <a href="#about">About Me</a>
+        </l1>
+        <l1>
+          <a href="#projects">Projects</a>
+        </l1>
+        <l1>
+          <a href="#contact">Contact</a>
+        </l1>
+      </ul>
+      <p class="copyright">
+        © ByZh4r Nyuzz| All Rights Reserved
+      </p>
+</footer>
+
+    <script src="script.js"></script>
+    <script src="particles.js"></script>
+    <script src="app.js"></script>
+    <script>
+      // JavaScript untuk animasi scroll
+      document.addEventListener("DOMContentLoaded", function() {
+        const elements = document.querySelectorAll('.scroll-animation');
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+            } else {
+              entry.target.classList.remove('visible');
+            }
+          });
+        });
+
+        elements.forEach(element => {
+          observer.observe(element);
+        });
+        
+        // Spotify Audio Ball Functionality
+        const audio = document.getElementById('audioPlayer');
+        const ball = document.getElementById('audioBall');
+        const playlist = document.getElementById('playlist');
+        const songs = document.querySelectorAll('.song');
+        
+        let currentSongIndex = 0;
+        
+        // Load first song
+        audio.src = songs[currentSongIndex].getAttribute('data-src');
+        
+        // Ball click handler
+        ball.addEventListener('click', function() {
+          // Toggle playlist
+          playlist.style.display = playlist.style.display === 'block' ? 'none' : 'block';
+        });
+        
+        // Play/pause when song is selected
+        songs.forEach((song, index) => {
+          song.addEventListener('click', function() {
+            // Update active song
+            songs.forEach(s => s.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Change song
+            currentSongIndex = index;
+            audio.src = this.getAttribute('data-src');
+            audio.play();
+            ball.classList.add('active');
+            
+            // Close playlist after selection
+            playlist.style.display = 'none';
+          });
+        });
+        
+        // Click outside to close playlist
+        document.addEventListener('click', function(e) {
+          if (!ball.contains(e.target) && !playlist.contains(e.target)) {
+            playlist.style.display = 'none';
+          }
+        });
+        
+        // Play/pause toggle when directly clicking the ball
+        ball.addEventListener('dblclick', function() {
+          if (audio.paused) {
+            audio.play();
+            ball.classList.add('active');
+          } else {
+            audio.pause();
+            ball.classList.remove('active');
+          }
+        });
+        
+        // Auto play next song when current ends
+        audio.addEventListener('ended', function() {
+          currentSongIndex = (currentSongIndex + 1) % songs.length;
+          songs.forEach(s => s.classList.remove('active'));
+          songs[currentSongIndex].classList.add('active');
+          audio.src = songs[currentSongIndex].getAttribute('data-src');
+          audio.play();
+          ball.classList.add('active');
+        });
+      });
+    </script>
+</body>10
+</html>
